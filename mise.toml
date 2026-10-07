@@ -1,0 +1,35 @@
+[tools]
+rust = "stable"
+
+[tasks.build]
+description = "Build debug binary"
+run = "cargo build"
+
+[tasks.release]
+description = "Build optimized release binary"
+run = "cargo build --release"
+
+[tasks.test]
+description = "Run unit and integration tests"
+run = "cargo test"
+
+[tasks.check]
+description = "Fast type-check without codegen"
+run = "cargo check"
+
+[tasks.clippy]
+description = "Lint with clippy"
+run = "cargo clippy --all-targets -- -D warnings"
+
+[tasks.fmt]
+description = "Format the code"
+run = "cargo fmt"
+
+[tasks.run]
+description = "Run the program, pass args after --, e.g. mise run -- video.mp4 -r 1024"
+run = "cargo run --release -- $@"
+
+[tasks.bench]
+description = "Run a quick benchmark on /tmp/bench.mp4 if present"
+run = "time ./target/release/strisk /tmp/bench.mp4 -o /tmp/bench.png -r 1024"
+depends = ["release"]
