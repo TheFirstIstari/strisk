@@ -33,7 +33,7 @@ pub fn frame_index(angle_deg: f64, frame_count: usize, notch_degrees: f64) -> Op
 }
 
 /// Fill one RGBA row (`out` must be side*4 bytes, pre-zeroed).
-pub fn render_row(colors: &[Rgb8], p: &RenderParams, side: usize, y: usize, out: &mut [u8]) {
+pub fn render_row(colors: &[Rgb8], p: &RenderParams, _side: usize, y: usize, out: &mut [u8]) {
     let center = p.radius as f64 + 1.0;
     let r_in = p.inner_fraction * p.radius as f64;
     let r_in2 = r_in * r_in;
