@@ -1,8 +1,8 @@
 use std::io::{BufWriter, Write};
 use std::path::Path;
 
-use flate2::Compression;
 use flate2::write::ZlibEncoder;
+use flate2::Compression;
 
 use crate::error::StriskError;
 

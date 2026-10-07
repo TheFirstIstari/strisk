@@ -30,7 +30,7 @@ pub fn render_row(colors: &[Rgb8], p: &RenderParams, _side: usize, y: usize, out
     let r_out2 = (p.radius as f64) * (p.radius as f64);
     let dy = y as f64 + 0.5 - center;
     let dy2 = dy * dy;
-    for (x, px) in out.chunks_exact_mut(4).enumerate() {
+    for (x, px) in out.as_chunks_mut::<4>().0.iter_mut().enumerate() {
         let dx = x as f64 + 0.5 - center;
         let r2 = dx * dx + dy2;
         if r2 <= r_in2 || r2 > r_out2 {
@@ -73,5 +73,4 @@ mod tests {
         assert_eq!(first, 0);
         assert_eq!(second, 1);
     }
-
 }

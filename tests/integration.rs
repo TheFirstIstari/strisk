@@ -8,9 +8,23 @@ fn end_to_end_synthetic_video() {
 
     // 2s red then 2s blue at 10fps
     let status = Command::new("ffmpeg")
-        .args(["-v", "error", "-f", "lavfi", "-i", "color=red:size=160x120:duration=2:rate=10",
-               "-f", "lavfi", "-i", "color=blue:size=160x120:duration=2:rate=10",
-               "-filter_complex", "[0:v][1:v]concat=n=2:v=1:a=0[v]", "-map", "[v]", "-y"])
+        .args([
+            "-v",
+            "error",
+            "-f",
+            "lavfi",
+            "-i",
+            "color=red:size=160x120:duration=2:rate=10",
+            "-f",
+            "lavfi",
+            "-i",
+            "color=blue:size=160x120:duration=2:rate=10",
+            "-filter_complex",
+            "[0:v][1:v]concat=n=2:v=1:a=0[v]",
+            "-map",
+            "[v]",
+            "-y",
+        ])
         .arg(&video)
         .status()
         .unwrap();
@@ -41,8 +55,16 @@ fn end_to_end_synthetic_video() {
     assert_eq!(px(c, 5).3, 0, "notch transparent");
     // 90 deg (right), halfway out: should be reddish (first half of video)
     let right = px(c + 120, c);
-    assert!(right.0 > 150 && right.2 < 80 && right.3 == 255, "got {:?}", right);
+    assert!(
+        right.0 > 150 && right.2 < 80 && right.3 == 255,
+        "got {:?}",
+        right
+    );
     // 270 deg (left): blueish
     let left = px(c - 120, c);
-    assert!(left.2 > 150 && left.0 < 80 && left.3 == 255, "got {:?}", left);
+    assert!(
+        left.2 > 150 && left.0 < 80 && left.3 == 255,
+        "got {:?}",
+        left
+    );
 }

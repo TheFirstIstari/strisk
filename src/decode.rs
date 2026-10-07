@@ -13,7 +13,9 @@ pub struct DecodeParams {
 }
 
 pub fn scaled_dims(sample_width: u32, src_w: u32, src_h: u32) -> (u32, u32) {
-    let mut h = ((src_h as f64) * (sample_width as f64) / (src_w as f64)).round().max(2.0) as u32;
+    let mut h = ((src_h as f64) * (sample_width as f64) / (src_w as f64))
+        .round()
+        .max(2.0) as u32;
     if h % 2 == 1 {
         h += 1;
     }
@@ -72,7 +74,7 @@ pub fn analyze_video(
     p: &DecodeParams,
 ) -> Result<Vec<Rgb8>, StriskError> {
     let jobs = jobs.max(1);
-    if jobs == 1 || duration_secs.map_or(true, |d| d <= 0.0) {
+    if jobs == 1 || duration_secs.is_none_or(|d| d <= 0.0) {
         let colors = decode_segment(input, None, None, p)?;
         if colors.is_empty() {
             return Err(StriskError::ZeroFrames);
@@ -93,7 +95,9 @@ pub fn analyze_video(
     }
     let mut colors = Vec::new();
     for h in handles {
-        let mut seg = h.join().map_err(|_| StriskError::Decode("worker panicked".into()))??;
+        let mut seg = h
+            .join()
+            .map_err(|_| StriskError::Decode("worker panicked".into()))??;
         colors.append(&mut seg);
     }
     if colors.is_empty() {

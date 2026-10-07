@@ -29,7 +29,7 @@ impl Analyzer {
         let l = self.levels;
         self.counts.fill(0);
         self.sum.fill([0; 3]);
-        for px in frame.chunks_exact(3) {
+        for px in frame.as_chunks::<3>().0 {
             let idx = (px[0] as usize * l / 256 * l + px[1] as usize * l / 256) * l
                 + px[2] as usize * l / 256;
             self.counts[idx] += 1;
@@ -60,17 +60,14 @@ mod tests {
 
     #[test]
     fn dominant_is_mode_bucket() {
-        let frame: Vec<u8> = [10, 10, 200, 20, 20, 210, 15, 15, 190, 250, 0, 0]
-            .iter()
-            .copied()
-            .collect();
+        let frame: Vec<u8> = [10, 10, 200, 20, 20, 210, 15, 15, 190, 250, 0, 0].to_vec();
         let c = Analyzer::new(8).dominant(&frame);
         assert!(c.b > 150 && c.r < 60, "got {:?}", c);
     }
 
     #[test]
     fn deterministic_tie_break() {
-        let frame: Vec<u8> = [255, 0, 0, 0, 0, 255].iter().copied().collect();
+        let frame: Vec<u8> = [255, 0, 0, 0, 0, 255].to_vec();
         let a = Analyzer::new(8).dominant(&frame);
         let b = Analyzer::new(8).dominant(&frame);
         assert_eq!(a, b);
