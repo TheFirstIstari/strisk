@@ -51,7 +51,8 @@ i.e. `R = ceil(1 / (Δ_rad * inner_fraction))`, with a floor of 16 px. If `--rad
 - Allocate RGBA buffer `canvas = vec![0u8; side*side*4]`.
 - Single pass over all pixels; for each pixel compute `(dx, dy)` from center, `r`, and angle `θ` mapped to `[0°, 360°)` with 0° = up, clockwise positive.
 - If `r_in < r <= R`, angle outside notch, and `θ` falls in frame `i`'s wedge → write frame `i`'s colour, alpha 255. Else alpha 0.
-- Encode with the `png` crate (RGBA8, default compression, no interlacing) and write to output path.
+- Encode to PNG (RGBA8, no interlace) via the streaming encoder in `png_stream.rs` (flate2 + per-row adaptive filter selection); the full canvas is never materialized — one row buffer + one zlib window.
+- Multiple IDAT chunks of <= 8MB are emitted eagerly so the compressed payload is never fully in memory.
 
 ## 7. CLI (clap, derive)
 
@@ -78,7 +79,8 @@ Validation: `levels >= 2`, `0 < inner_fraction < 1`, `0 <= notch_degrees < 60`, 
 ## 8. Crates / Dependencies
 
 - `clap` (derive) — CLI
-- `png` — PNG encoding
+- `flate2` + `crc32fast` — PNG encoding (streaming)
+- `png` — PNG crate (used only in tests)
 - `serde_json` — parse ffprobe JSON
 - `thiserror` — error types
 - Dev: `tempfile` for tests
@@ -89,6 +91,7 @@ No async runtime; std I/O and blocking subprocesses. Target stable Rust.
 
 - Release profile: `opt-level = 3`, `lto = "thin"`, `codegen-units = 1`.
 - Dominant cost is ffmpeg decode; analysis is O(frames × sample_w × sample_h) on a tiny buffer with a fixed 512-entry histogram — no heap allocation per pixel.
+- Decode is split across N parallel ffmpeg time segments (`--jobs`).
 - Single streaming decode pass; frame colours stored in a 3-byte-per-frame Vec; render pass is one sweep over the canvas.
 
 ## 10. Error Handling

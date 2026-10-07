@@ -19,6 +19,8 @@ strisk <INPUT> [OPTIONS]
 Options:
   -o, --output <PATH>       Output PNG path [default: <input_stem>.strisk.png]
   -r, --radius <PX>         Outer disk radius [default: from --output-res]
+
+Memory: streaming encoder — no full-canvas buffer (~row + 8MB IDAT slab at any time).
       --output-res <PX>    Output image side length [default: 8192]
       --inner-fraction <F>  Blank center radius as fraction of R [default: 0.25]
       --notch-degrees <DEG> Width of the start/end notch [default: 4.0]

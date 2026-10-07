@@ -1,5 +1,3 @@
-use rayon::prelude::*;
-
 use crate::analyze::Rgb8;
 
 pub struct RenderParams {
@@ -46,15 +44,6 @@ pub fn render_row(colors: &[Rgb8], p: &RenderParams, _side: usize, y: usize, out
             px[3] = 255;
         }
     }
-}
-
-pub fn render(colors: &[Rgb8], p: &RenderParams) -> Vec<u8> {
-    let side = (2 * p.radius + 2) as usize;
-    let mut buf = vec![0u8; side * side * 4];
-    buf.par_chunks_mut(side * 4)
-        .enumerate()
-        .for_each(|(y, row)| render_row(colors, p, side, y, row));
-    buf
 }
 
 #[cfg(test)]

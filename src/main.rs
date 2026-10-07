@@ -2,7 +2,7 @@ mod analyze;
 mod cli;
 mod decode;
 mod error;
-mod png_out;
+mod png_stream;
 mod probe;
 mod render;
 
@@ -52,9 +52,18 @@ fn run() -> Result<(), StriskError> {
         inner_fraction: cli.inner_fraction,
         notch_degrees: cli.notch_degrees,
     };
-    let rgba = render::render(&colors, &params);
-    let side = 2 * radius + 2;
-    png_out::write_png(&cli.output_path(), &rgba, side)?;
+    let side = (2 * radius + 2) as usize;
+    let mut row_buf = vec![0u8; side * 4];
+    png_stream::write_png_streaming(
+        &cli.output_path(),
+        side as u32,
+        side as u32,
+        |y, out| {
+            row_buf.iter_mut().for_each(|b| *b = 0);
+            render::render_row(&colors, &params, side, y, &mut row_buf);
+            out.copy_from_slice(&row_buf);
+        },
+    )?;
     eprintln!("wrote {} ({} frames, radius {}px)", cli.output_path().display(), colors.len(), radius);
     Ok(())
 }
