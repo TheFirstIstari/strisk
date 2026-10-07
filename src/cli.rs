@@ -11,9 +11,13 @@ pub struct Cli {
     #[arg(short, long)]
     pub output: Option<PathBuf>,
 
-    /// Outer disk radius in px [default: auto]
+    /// Outer disk radius in px [default: derived from --output-res]
     #[arg(short, long)]
     pub radius: Option<u32>,
+
+    /// Output image side length in px (disk diameter fills it)
+    #[arg(long, default_value_t = 8192)]
+    pub output_res: u32,
 
     /// Blank center radius as fraction of R
     #[arg(long, default_value_t = 0.25)]
@@ -48,6 +52,9 @@ impl Cli {
         if self.sample_width < 8 { return Err("sample_width must be >= 8".into()); }
         if let Some(r) = self.radius {
             if r < 16 { return Err("radius must be >= 16".into()); }
+        }
+        if self.output_res < 256 || self.output_res > 16384 {
+            return Err("output_res must be in [256, 16384]".into());
         }
         Ok(())
     }

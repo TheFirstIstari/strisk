@@ -8,15 +8,7 @@ pub struct RenderParams {
     pub notch_degrees: f64,
 }
 
-pub const MAX_SIDE: u32 = 8192;
-
-pub fn auto_radius(frame_count: usize, inner_fraction: f64, notch_degrees: f64) -> u32 {
-    let notch_rad = notch_degrees.to_radians();
-    let delta = (2.0 * std::f64::consts::PI - notch_rad) / frame_count.max(1) as f64;
-    let r = (1.0 / (delta * inner_fraction)).ceil() as u32;
-    let max_r = MAX_SIDE.saturating_sub(2) / 2;
-    r.clamp(16, max_r)
-}
+pub const MAX_SIDE: u32 = 16384;
 
 /// Angle in degrees, 0 = up, clockwise, range [0, 360).
 fn pixel_angle(dx: f64, dy: f64) -> f64 {
@@ -93,16 +85,4 @@ mod tests {
         assert_eq!(second, 1);
     }
 
-    #[test]
-    fn auto_radius_satisfies_one_px_arc() {
-        let r = auto_radius(40, 0.25, 4.0);
-        let delta = (2.0 * std::f64::consts::PI - 4.0f64.to_radians()) / 40.0;
-        assert!(delta * r as f64 * 0.25 >= 1.0);
-    }
-
-    #[test]
-    fn auto_radius_clamped() {
-        let r = auto_radius(100_000, 0.25, 4.0);
-        assert!(2 * r + 2 <= MAX_SIDE);
-    }
 }

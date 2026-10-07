@@ -38,9 +38,7 @@ fn run() -> Result<(), StriskError> {
             );
         }
     }
-    let mut radius = cli.radius.unwrap_or_else(|| {
-        render::auto_radius(colors.len(), cli.inner_fraction, cli.notch_degrees)
-    });
+    let mut radius = cli.radius.unwrap_or_else(|| (cli.output_res.saturating_sub(2)) / 2);
     let max_r = (render::MAX_SIDE - 2) / 2;
     if radius > max_r {
         eprintln!(

@@ -18,7 +18,8 @@ strisk <INPUT> [OPTIONS]
 
 Options:
   -o, --output <PATH>       Output PNG path [default: <input_stem>.strisk.png]
-  -r, --radius <PX>         Outer disk radius [default: auto]
+  -r, --radius <PX>         Outer disk radius [default: from --output-res]
+      --output-res <PX>    Output image side length [default: 8192]
       --inner-fraction <F>  Blank center radius as fraction of R [default: 0.25]
       --notch-degrees <DEG> Width of the start/end notch [default: 4.0]
       --levels <L>          Quantization levels per RGB channel [default: 8]
@@ -26,7 +27,7 @@ Options:
       --jobs <N>             Parallel ffmpeg decode processes [default: 4]
 ```
 
-Note: auto radius is clamped to keep the canvas <= 8192x8192 px for very long videos.
+Note: output side is capped at 16384px (~1GB RGBA buffer).
 
 Example:
 
