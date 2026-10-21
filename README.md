@@ -11,13 +11,13 @@ video.
 
 ## Features
 
-- 🎬 Any input format ffmpeg can read
-- 🎨 Per-frame dominant colour via quantization-mode histogram (configurable levels)
-- 🍩 Blank centre ring, configurable inner radius fraction
-- 🕳️ Configurable notch marking the start/end boundary
-- ⚡ Parallel multi-process ffmpeg decode (`--jobs`)
-- 📉 Streaming, lossless PNG encoder — constant low memory, adaptive row filters
-- 📐 Fixed output resolution target (default 8k), `-r` radius override
+- Any input format ffmpeg can read
+- Per-frame dominant colour via quantization-mode histogram (configurable levels)
+- Blank centre ring, configurable inner radius fraction
+- Configurable notch marking the start/end boundary
+- Parallel multi-process ffmpeg decode (`--jobs`)
+- Streaming, lossless PNG encoder: constant low memory, adaptive row filters
+- Fixed output resolution target (default 8k), `-r` radius override
 
 ## Requirements
 
@@ -66,7 +66,7 @@ strisk movie.mp4 --output-res 16384 -o big.png
 strisk movie.mkv --jobs 8 --notch-degrees 2
 ```
 
-Memory: the encoder streams rows through a fixed row filter + zlib window —
+Memory: the encoder streams rows through a fixed row filter + zlib window;
 the full canvas is never in memory (peak usage ≈ row buffer + 8MB IDAT slab).
 
 ## Development
