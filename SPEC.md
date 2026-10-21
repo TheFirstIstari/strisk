@@ -1,4 +1,4 @@
-# strisk — Project Specification
+# strisk Project Specification
 
 ## 1. Overview
 
@@ -7,7 +7,7 @@
 ## 2. Visual Output Definition
 
 - Canvas: square of side `2 * R + 2` pixels, RGBA8.
-- Outer disk radius: `R` pixels (user-settable, default auto-computed — see §4).
+- Outer disk radius: `R` pixels (user-settable, default auto-computed, see §4).
 - Inner blank circle: radius `r_in = inner_fraction * R` (default inner_fraction = 0.25). Fully transparent.
 - Retained ring: annulus `r_in < r <= R`.
 - Notch: a wedge of configurable angular width `notch_degrees` (default 4.0°), centered on 12 o'clock (angle 0 = up, increasing clockwise), fully transparent. It separates the last frame (end of movie) from the first frame (00:00).
@@ -18,7 +18,7 @@
 ## 3. Predominant Colour (per frame)
 
 - Each decoded frame is spatially downscaled by ffmpeg (see §5) to a small size so analysis is cheap.
-- Quantize each pixel's RGB to `L` levels per channel (default `L = 8`, configurable via `--levels`), producing an `L^3`-entry histogram (fixed-size `u32` array, e.g. 8^3 = 512 entries — no hash map).
+- Quantize each pixel's RGB to `L` levels per channel (default `L = 8`, configurable via `--levels`), producing an `L^3`-entry histogram (fixed-size `u32` array, e.g. 8^3 = 512 entries, no hash map).
 - Winning bucket = bucket with the most pixels (ties: lowest bucket index; deterministic).
 - Representative colour = arithmetic mean of the *original* RGB values of all pixels in the winning bucket (rounded to u8). This is stored as that frame's wedge colour.
 
@@ -37,7 +37,7 @@ i.e. `R = ceil(1 / (Δ_rad * inner_fraction))`, with a floor of 16 px. If `--rad
 
 - Format probing: `ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames,nb_read_packets,width,height,duration,avg_frame_rate -of json <input>`.
   - Frame count `N`: prefer `nb_frames`; fall back to counting decoded frames; fall back to `round(duration * avg_frame_rate)`.
-- Decode + analysis: single streaming pass —
+- Decode + analysis (single streaming pass):
   ```
   ffmpeg -v error -i <input> -vf "scale=<sw>:-2" -pix_fmt rgb24 -f rawvideo -
   ```
@@ -51,7 +51,7 @@ i.e. `R = ceil(1 / (Δ_rad * inner_fraction))`, with a floor of 16 px. If `--rad
 - Allocate RGBA buffer `canvas = vec![0u8; side*side*4]`.
 - Single pass over all pixels; for each pixel compute `(dx, dy)` from center, `r`, and angle `θ` mapped to `[0°, 360°)` with 0° = up, clockwise positive.
 - If `r_in < r <= R`, angle outside notch, and `θ` falls in frame `i`'s wedge → write frame `i`'s colour, alpha 255. Else alpha 0.
-- Encode to PNG (RGBA8, no interlace) via the streaming encoder in `png_stream.rs` (flate2 + per-row adaptive filter selection); the full canvas is never materialized — one row buffer + one zlib window.
+- Encode to PNG (RGBA8, no interlace) via the streaming encoder in `png_stream.rs` (flate2 + per-row adaptive filter selection); the full canvas is never materialized: one row buffer + one zlib window.
 - Multiple IDAT chunks of <= 8MB are emitted eagerly so the compressed payload is never fully in memory.
 
 ## 7. CLI (clap, derive)
@@ -78,11 +78,11 @@ Validation: `levels >= 2`, `0 < inner_fraction < 1`, `0 <= notch_degrees < 60`, 
 
 ## 8. Crates / Dependencies
 
-- `clap` (derive) — CLI
-- `flate2` + `crc32fast` — PNG encoding (streaming)
-- `png` — PNG crate (used only in tests)
-- `serde_json` — parse ffprobe JSON
-- `thiserror` — error types
+- `clap` (derive): CLI
+- `flate2` + `crc32fast`: PNG encoding (streaming)
+- `png`: PNG crate (used only in tests)
+- `serde_json`: parse ffprobe JSON
+- `thiserror`: error types
 - Dev: `tempfile` for tests
 
 No async runtime; std I/O and blocking subprocesses. Target stable Rust.
@@ -90,7 +90,7 @@ No async runtime; std I/O and blocking subprocesses. Target stable Rust.
 ## 9. Performance Notes
 
 - Release profile: `opt-level = 3`, `lto = "thin"`, `codegen-units = 1`.
-- Dominant cost is ffmpeg decode; analysis is O(frames × sample_w × sample_h) on a tiny buffer with a fixed 512-entry histogram — no heap allocation per pixel.
+- Dominant cost is ffmpeg decode; analysis is O(frames × sample_w × sample_h) on a tiny buffer with a fixed 512-entry histogram (no heap allocation per pixel).
 - Decode is split across N parallel ffmpeg time segments (`--jobs`).
 - Single streaming decode pass; frame colours stored in a 3-byte-per-frame Vec; render pass is one sweep over the canvas.
 
